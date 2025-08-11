@@ -1,6 +1,8 @@
 name: Build Flutter Android APK (Debug)
 
-on: [push, workflow_dispatch]
+on:
+  push:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -19,7 +21,7 @@ jobs:
 
       - name: Install Android components
         run: |
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0" "ndk;27.1.12297006"
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0" "platforms;android-33" "cmake;3.22.1" "ndk;27.1.12297006"
           yes | sdkmanager --licenses
 
       - name: Set up Flutter
@@ -29,28 +31,26 @@ jobs:
           channel: 'stable'
 
       - name: Write local.properties
-        run: echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
-
-      - name: Write local.properties
         run: |
           echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
           echo "flutter.versionCode=1" >> android/local.properties
           echo "flutter.versionName=1.0" >> android/local.properties
 
-      - name: Pub get
+      - name: Flutter pub get
         run: flutter pub get
 
-      - name: Pin NDK & Gradle opts
+      - name: Build debug APK (verbose)
+        run: flutter build apk --debug -v
+
+      - name: Show outputs (for debugging)
         run: |
-          echo "android.ndkVersion=27.1.12297006" >> android/gradle.properties
-          echo "org.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=512m" >> android/gradle.properties
-          echo "org.gradle.daemon=true" >> android/gradle.properties
+          ls -lah build/app/outputs || true
+          find build -type f -name "*.apk" -print || true
 
-      - name: Build debug APK
-        run: flutter build apk --debug
-
-      - name: Upload APK
+      - name: Upload any APKs found
         uses: actions/upload-artifact@v4
         with:
-          name: ble_bridge-debug-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: ble_bridge-apks
+          path: |
+            build/**/*.apk
+            **/outputs/**/*.apk
