@@ -41,11 +41,15 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
+      # Regenerate missing Android Gradle wrapper (gradlew, wrapper jar/props)
+      - name: Ensure Android wrapper
+        run: flutter create .
+
       - name: Make gradlew executable
         working-directory: android
         run: chmod +x gradlew
 
-      # Build with Gradle directly to avoid Flutter's APK path check
+      # Build with Gradle directly to avoid Flutter’s APK path check
       - name: Build with Gradle (assembleDebug)
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon --stacktrace
@@ -62,3 +66,4 @@ jobs:
           path: |
             android/app/build/outputs/**/*.apk
             build/**/*.apk
+
