@@ -7,6 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -21,7 +22,8 @@ jobs:
 
       - name: Install Android components
         run: |
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0" "platforms;android-33" "cmake;3.22.1" "ndk;27.1.12297006"
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0" \
+                     "platforms;android-33" "cmake;3.22.1" "ndk;27.1.12297006"
           yes | sdkmanager --licenses
 
       - name: Set up Flutter
@@ -39,18 +41,24 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-      - name: Build debug APK (verbose)
-        run: flutter build apk --debug -v
+      - name: Make gradlew executable
+        working-directory: android
+        run: chmod +x gradlew
 
-      - name: Show outputs (for debugging)
+      # Build with Gradle directly to avoid Flutter's APK path check
+      - name: Build with Gradle (assembleDebug)
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Show outputs
         run: |
-          ls -lah build/app/outputs || true
-          find build -type f -name "*.apk" -print || true
+          ls -lah android/app/build/outputs || true
+          find android -type f -name "*.apk" -print || true
 
-      - name: Upload any APKs found
+      - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
           name: ble_bridge-apks
           path: |
+            android/app/build/outputs/**/*.apk
             build/**/*.apk
-            **/outputs/**/*.apk
