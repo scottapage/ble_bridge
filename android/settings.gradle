@@ -11,7 +11,7 @@ if (localPropertiesFile.exists()) {
 
 def flutterSdkPath = properties.getProperty("flutter.sdk")
 if (flutterSdkPath == null) {
-    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in local.properties")
 }
 
 apply from: "$flutterSdkPath/packages/flutter_tools/gradle/app_plugin_loader.gradle"
