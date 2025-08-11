@@ -7,12 +7,13 @@ plugins {
 
 android {
     namespace = "com.example.ble_bridge"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
-    android {
-        ndkVersion = "27.1.12297006"   // preferred (newer OK)
+    compileSdk = 35
+    defaultConfig { minSdk = 21; targetSdk = 35 }
+    ndkVersion = "27.1.12297006"   // preferred (newer OK)
         // buildToolsVersion = "35.0.0" // if you already set this, keep it
     }
+
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
